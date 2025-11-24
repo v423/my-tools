@@ -1,0 +1,541 @@
+<script>
+	import { fade, fly } from 'svelte/transition';
+	import { base } from '$app/paths';
+
+	let searchTerm = '';
+	let activeTab = 'buy'; // 'buy', 'rent', 'sell'
+
+	const listings = [
+		{
+			id: 1,
+			image:
+				'https://images.unsplash.com/photo-1600596542815-2495db9a9cf6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+			price: '$850,000',
+			address: '123 Maple Avenue, Rosewood',
+			beds: 3,
+			baths: 2,
+			sqft: 1800,
+			tag: 'Featured'
+		},
+		{
+			id: 2,
+			image:
+				'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+			price: '$1,200,000',
+			address: '45 Ocean Drive, Seaside',
+			beds: 4,
+			baths: 3,
+			sqft: 2500,
+			tag: 'New'
+		},
+		{
+			id: 3,
+			image:
+				'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+			price: '$650,000',
+			address: '789 Pine Street, Hilltop',
+			beds: 2,
+			baths: 2,
+			sqft: 1200,
+			tag: 'Hot'
+		}
+	];
+
+	const locations = [
+		{
+			name: 'Downtown',
+			image:
+				'https://images.unsplash.com/photo-1449824913929-4b4794984059?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+		},
+		{
+			name: 'Suburbs',
+			image:
+				'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+		},
+		{
+			name: 'Waterfront',
+			image:
+				'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+		},
+		{
+			name: 'Countryside',
+			image:
+				'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+		}
+	];
+
+	const testimonials = [
+		{
+			name: 'Sarah Jenkins',
+			role: 'Home Buyer',
+			text: 'Found my dream home in less than a week! The AI recommendations were spot on.'
+		},
+		{
+			name: 'Michael Chen',
+			role: 'Property Investor',
+			text: 'Professional service and great market insights. Highly recommended.'
+		}
+	];
+</script>
+
+<svelte:head>
+	<title>DreamHome - Find Your Perfect Place</title>
+	<meta
+		name="description"
+		content="Find your dream home with our AI-powered real estate platform."
+	/>
+</svelte:head>
+
+<div class="min-h-screen bg-[#F4EFE6] font-sans text-[#4A4A4A]">
+	<!-- Navigation -->
+	<nav
+		class="absolute top-0 right-0 left-0 z-50 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4"
+	>
+		<div class="text-2xl font-bold tracking-tight text-[#3A4A40]">DreamHome.</div>
+		<div class="hidden gap-8 font-medium text-[#3A4A40] md:flex">
+			<a href="#" class="transition-colors hover:text-[#FF7254]">Buy</a>
+			<a href="#" class="transition-colors hover:text-[#FF7254]">Rent</a>
+			<a href="#" class="transition-colors hover:text-[#FF7254]">Sell</a>
+			<a href="#" class="transition-colors hover:text-[#FF7254]">Agents</a>
+		</div>
+		<div class="flex gap-4">
+			<button
+				class="hidden px-4 py-2 font-medium text-[#3A4A40] transition-colors hover:text-[#FF7254] md:block"
+				>Log In</button
+			>
+			<button
+				class="rounded-md bg-[#FF7254] px-5 py-2 font-medium text-white shadow-sm transition-colors hover:bg-[#FF8A70]"
+				>Sign Up</button
+			>
+		</div>
+	</nav>
+
+	<!-- Hero Section -->
+	<header class="relative flex h-[85vh] min-h-[600px] items-center justify-center overflow-hidden">
+		<!-- Background Image with Overlay -->
+		<div class="absolute inset-0 z-0">
+			<img src="{base}/hero-bg.png" alt="Modern Living Room" class="h-full w-full object-cover" />
+			<div class="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10"></div>
+		</div>
+
+		<!-- Content -->
+		<div class="relative z-10 mt-16 w-full max-w-4xl px-4 text-center">
+			<h1
+				class="mb-4 text-4xl leading-tight font-bold tracking-tight text-white drop-shadow-md md:text-6xl"
+			>
+				Find Your Dream Home <br /> Without the Hassle
+			</h1>
+			<p class="mx-auto mb-10 max-w-2xl text-lg font-light text-white/90 md:text-xl">
+				Explore thousands of listings with our AI-powered search engine.
+			</p>
+
+			<!-- Search Box -->
+			<div class="mx-auto max-w-3xl rounded-xl bg-white bg-white/95 p-4 shadow-xl backdrop-blur-sm">
+				<!-- Tabs -->
+				<div class="mb-4 flex gap-6 border-b border-gray-100 px-2 pb-2">
+					{#each ['buy', 'rent', 'sell'] as tab}
+						<button
+							class="border-b-2 pb-2 text-sm font-semibold tracking-wide uppercase transition-colors {activeTab ===
+							tab
+								? 'border-[#FF7254] text-[#FF7254]'
+								: 'border-transparent text-gray-400 hover:text-gray-600'}"
+							on:click={() => (activeTab = tab)}
+						>
+							{tab}
+						</button>
+					{/each}
+				</div>
+
+				<!-- Inputs -->
+				<div class="grid grid-cols-1 items-center gap-4 md:grid-cols-4">
+					<div class="relative md:col-span-1">
+						<label class="mb-1 ml-1 block text-left text-xs font-medium text-gray-400"
+							>Location</label
+						>
+						<input
+							type="text"
+							placeholder="City, Zip, Neighborhood"
+							class="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm transition-all focus:border-[#FF7254] focus:ring-1 focus:ring-[#FF7254] focus:outline-none"
+						/>
+					</div>
+					<div class="relative">
+						<label class="mb-1 ml-1 block text-left text-xs font-medium text-gray-400">Type</label>
+						<select
+							class="w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm transition-all focus:border-[#FF7254] focus:ring-1 focus:ring-[#FF7254] focus:outline-none"
+						>
+							<option>Any Type</option>
+							<option>House</option>
+							<option>Apartment</option>
+							<option>Condo</option>
+						</select>
+						<div class="pointer-events-none absolute top-[2.1rem] right-3 text-gray-400">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
+								></path></svg
+							>
+						</div>
+					</div>
+					<div class="relative">
+						<label class="mb-1 ml-1 block text-left text-xs font-medium text-gray-400"
+							>Price Range</label
+						>
+						<select
+							class="w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm transition-all focus:border-[#FF7254] focus:ring-1 focus:ring-[#FF7254] focus:outline-none"
+						>
+							<option>Any Price</option>
+							<option>$100k - $300k</option>
+							<option>$300k - $600k</option>
+							<option>$600k+</option>
+						</select>
+						<div class="pointer-events-none absolute top-[2.1rem] right-3 text-gray-400">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
+								></path></svg
+							>
+						</div>
+					</div>
+					<div class="pt-5">
+						<button
+							class="flex w-full items-center justify-center gap-2 rounded-md bg-[#FF7254] py-2.5 font-semibold text-white shadow-md transition-colors hover:bg-[#FF8A70]"
+						>
+							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+								></path></svg
+							>
+							Search
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Featured Listings -->
+	<section class="mx-auto max-w-7xl px-6 py-20">
+		<div class="mb-10 flex items-end justify-between">
+			<div>
+				<h2 class="mb-2 text-3xl font-bold text-[#3A4A40]">Featured Listings</h2>
+				<p class="text-gray-500">Hand-picked properties just for you.</p>
+			</div>
+			<a href="#" class="flex items-center gap-1 font-medium text-[#FF7254] hover:underline">
+				View All
+				<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+					><path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M17 8l4 4m0 0l-4 4m4-4H3"
+					></path></svg
+				>
+			</a>
+		</div>
+
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+			{#each listings as listing}
+				<div
+					class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg"
+				>
+					<div class="relative h-64 overflow-hidden">
+						<img
+							src={listing.image}
+							alt={listing.address}
+							class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+						/>
+						<div
+							class="absolute top-4 left-4 rounded-full bg-[#FF7254] px-3 py-1 text-xs font-bold tracking-wider text-white uppercase"
+						>
+							{listing.tag}
+						</div>
+						<button
+							class="absolute top-4 right-4 rounded-full bg-white/80 p-2 text-[#FF7254] transition-colors hover:bg-white"
+						>
+							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+								></path></svg
+							>
+						</button>
+					</div>
+					<div class="p-6">
+						<div class="mb-2 flex items-start justify-between">
+							<h3 class="text-xl font-bold text-[#3A4A40]">{listing.price}</h3>
+						</div>
+						<p class="mb-4 text-sm text-gray-500">{listing.address}</p>
+						<div
+							class="flex items-center gap-4 border-t border-gray-100 pt-4 text-sm text-gray-400"
+						>
+							<div class="flex items-center gap-1">
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+									></path></svg
+								>
+								{listing.beds} Beds
+							</div>
+							<div class="flex items-center gap-1">
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+									></path></svg
+								>
+								{listing.baths} Baths
+							</div>
+							<div class="flex items-center gap-1">
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+									></path></svg
+								>
+								{listing.sqft} sqft
+							</div>
+						</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</section>
+
+	<!-- Popular Locations -->
+	<section class="bg-white py-20">
+		<div class="mx-auto max-w-7xl px-6">
+			<h2 class="mb-10 text-center text-3xl font-bold text-[#3A4A40]">
+				Explore Popular Neighborhoods
+			</h2>
+			<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+				{#each locations as location}
+					<div class="group relative h-64 cursor-pointer overflow-hidden rounded-xl">
+						<img
+							src={location.image}
+							alt={location.name}
+							class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+						/>
+						<div
+							class="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 to-transparent p-6"
+						>
+							<h3 class="text-lg font-bold text-white">{location.name}</h3>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	</section>
+
+	<!-- Features / Why Us -->
+	<section class="mx-auto max-w-7xl px-6 py-20">
+		<div class="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
+			<div>
+				<h2 class="mb-6 text-3xl font-bold text-[#3A4A40]">Why Choose DreamHome?</h2>
+				<div class="space-y-8">
+					<div class="flex gap-4">
+						<div
+							class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F4EFE6] text-[#FF7254]"
+						>
+							<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+								></path></svg
+							>
+						</div>
+						<div>
+							<h3 class="mb-2 text-xl font-bold text-[#3A4A40]">AI-Powered Matching</h3>
+							<p class="leading-relaxed text-gray-500">
+								Our advanced algorithms analyze your preferences to find properties that perfectly
+								match your lifestyle.
+							</p>
+						</div>
+					</div>
+					<div class="flex gap-4">
+						<div
+							class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F4EFE6] text-[#FF7254]"
+						>
+							<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+								></path></svg
+							>
+						</div>
+						<div>
+							<h3 class="mb-2 text-xl font-bold text-[#3A4A40]">Virtual Tours</h3>
+							<p class="leading-relaxed text-gray-500">
+								Experience properties from the comfort of your home with our immersive 3D virtual
+								tours.
+							</p>
+						</div>
+					</div>
+					<div class="flex gap-4">
+						<div
+							class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F4EFE6] text-[#FF7254]"
+						>
+							<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+								><path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+								></path></svg
+							>
+						</div>
+						<div>
+							<h3 class="mb-2 text-xl font-bold text-[#3A4A40]">Verified Listings</h3>
+							<p class="leading-relaxed text-gray-500">
+								Every property is vetted by our team to ensure accuracy and prevent fraud.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="relative">
+				<div
+					class="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-[#FF7254]/10 blur-3xl"
+				></div>
+				<div
+					class="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-[#3A4A40]/10 blur-3xl"
+				></div>
+				<img
+					src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+					alt="Modern House Interior"
+					class="relative z-10 rounded-2xl shadow-2xl"
+				/>
+			</div>
+		</div>
+	</section>
+
+	<!-- Testimonials -->
+	<section class="bg-[#3A4A40] py-20 text-white">
+		<div class="mx-auto max-w-7xl px-6 text-center">
+			<h2 class="mb-12 text-3xl font-bold">What Our Clients Say</h2>
+			<div class="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
+				{#each testimonials as testimonial}
+					<div class="rounded-xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+						<div class="mb-4 flex justify-center text-[#FF7254]">
+							{#each Array(5) as _}
+								<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"
+									><path
+										d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+									></path></svg
+								>
+							{/each}
+						</div>
+						<p class="mb-6 text-lg italic">"{testimonial.text}"</p>
+						<div class="font-bold">{testimonial.name}</div>
+						<div class="text-sm text-white/60">{testimonial.role}</div>
+					</div>
+				{/each}
+			</div>
+
+			<div class="mt-16 grid grid-cols-2 gap-8 border-t border-white/10 pt-10 md:grid-cols-4">
+				<div>
+					<div class="mb-1 text-4xl font-bold text-[#FF7254]">50k+</div>
+					<div class="text-sm text-white/60">Happy Customers</div>
+				</div>
+				<div>
+					<div class="mb-1 text-4xl font-bold text-[#FF7254]">120+</div>
+					<div class="text-sm text-white/60">Cities Covered</div>
+				</div>
+				<div>
+					<div class="mb-1 text-4xl font-bold text-[#FF7254]">10k+</div>
+					<div class="text-sm text-white/60">New Listings/Month</div>
+				</div>
+				<div>
+					<div class="mb-1 text-4xl font-bold text-[#FF7254]">4.9</div>
+					<div class="text-sm text-white/60">Average Rating</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTA Section -->
+	<section class="mx-auto max-w-4xl px-6 py-24 text-center">
+		<h2 class="mb-6 text-3xl font-bold text-[#3A4A40] md:text-4xl">Ready to Find Your New Home?</h2>
+		<p class="mx-auto mb-8 max-w-2xl text-gray-500">
+			Join thousands of satisfied customers who found their perfect match with DreamHome.
+		</p>
+		<div class="flex flex-col justify-center gap-4 sm:flex-row">
+			<button
+				class="rounded-md bg-[#FF7254] px-8 py-4 text-lg font-bold text-white shadow-lg transition-colors hover:bg-[#FF8A70]"
+				>Start Searching</button
+			>
+			<button
+				class="rounded-md border border-[#FF7254] bg-white px-8 py-4 text-lg font-bold text-[#FF7254] transition-colors hover:bg-[#FFF5F2]"
+				>Download App</button
+			>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="border-t border-gray-100 bg-white px-6 pt-16 pb-8">
+		<div class="mx-auto mb-12 grid max-w-7xl grid-cols-1 gap-12 md:grid-cols-4">
+			<div>
+				<div class="mb-4 text-2xl font-bold text-[#3A4A40]">DreamHome.</div>
+				<p class="text-sm leading-relaxed text-gray-400">
+					Making real estate simple, transparent, and efficient for everyone.
+				</p>
+			</div>
+			<div>
+				<h4 class="mb-4 font-bold text-[#3A4A40]">Company</h4>
+				<ul class="space-y-2 text-sm text-gray-500">
+					<li><a href="#" class="hover:text-[#FF7254]">About Us</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Careers</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Press</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Blog</a></li>
+				</ul>
+			</div>
+			<div>
+				<h4 class="mb-4 font-bold text-[#3A4A40]">Resources</h4>
+				<ul class="space-y-2 text-sm text-gray-500">
+					<li><a href="#" class="hover:text-[#FF7254]">Buying Guide</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Selling Guide</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Mortgage Calculator</a></li>
+					<li><a href="#" class="hover:text-[#FF7254]">Help Center</a></li>
+				</ul>
+			</div>
+			<div>
+				<h4 class="mb-4 font-bold text-[#3A4A40]">Contact</h4>
+				<ul class="space-y-2 text-sm text-gray-500">
+					<li>hello@dreamhome.com</li>
+					<li>+1 (555) 123-4567</li>
+					<li>123 Market St, Suite 400<br />San Francisco, CA 94103</li>
+				</ul>
+			</div>
+		</div>
+		<div
+			class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-gray-100 pt-8 text-sm text-gray-400 md:flex-row"
+		>
+			<div>&copy; 2024 DreamHome Inc. All rights reserved.</div>
+			<div class="flex gap-6">
+				<a href="#" class="hover:text-[#FF7254]">Privacy Policy</a>
+				<a href="#" class="hover:text-[#FF7254]">Terms of Service</a>
+			</div>
+		</div>
+	</footer>
+</div>
