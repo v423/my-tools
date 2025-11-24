@@ -1,0 +1,1 @@
+import{f as e,a as s}from"../chunks/CBiTOV46.js";import"../chunks/DzEy8qRj.js";import{s as m,f}from"../chunks/BckgAfpx.js";import{s as n}from"../chunks/gP7PzJUt.js";var i=e('<header class="py-4 mb-4 text-2xl text-center font-bold ">计算器汇总</header> <!>',1);function h(o,r){var t=i(),a=m(f(t),2);n(a,r,"default",{}),s(o,t)}export{h as component};
