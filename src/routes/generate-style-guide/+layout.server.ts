@@ -119,14 +119,19 @@ export const load = async ({ route }) => {
     }
   }
 
+  let promptRaw = '';
+  let styleGuideRaw = '';
+
   // Process markdown
   for (const [path, content] of Object.entries(markdownGlob)) {
     if (path.startsWith(searchPrefix)) {
       const fileName = path.split('/').pop()?.toLowerCase();
       if (fileName?.includes('prompt') && fileName.endsWith('.md')) {
-        promptContent = await marked.parse(content as string, { renderer });
+        promptRaw = content as string;
+        promptContent = await marked.parse(promptRaw, { renderer });
       } else if (fileName === 'style-guide.md') {
-        styleGuideContent = await marked.parse(content as string, { renderer });
+        styleGuideRaw = content as string;
+        styleGuideContent = await marked.parse(styleGuideRaw, { renderer });
       }
     }
   }
@@ -135,7 +140,9 @@ export const load = async ({ route }) => {
     designResources: {
       images,
       prompt: promptContent,
-      styleGuide: styleGuideContent
+      promptRaw,
+      styleGuide: styleGuideContent,
+      styleGuideRaw
     }
   };
 };

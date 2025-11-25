@@ -6,6 +6,7 @@
 	let showModal = false;
 	let activeTab = 'preview'; // 'preview' | 'prompt' | 'styleGuide'
 	let showHoverPreview = false;
+	let selectedImage: string | null = null;
 
 	$: hasResources =
 		data.designResources.images.length > 0 ||
@@ -17,6 +18,18 @@
 		if (hasResources) {
 			showModal = !showModal;
 		}
+	}
+
+	function downloadFile(content: string, filename: string) {
+		const blob = new Blob([content], { type: 'text/markdown' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
 	}
 </script>
 
@@ -139,32 +152,93 @@
 					{#if data.designResources.images.length > 0}
 						<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 							{#each data.designResources.images as img}
-								<div
-									class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md"
+								<button
+									class="group relative w-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+									on:click={() => (selectedImage = img)}
 								>
 									<img src={img} alt="Design resource" class="h-auto w-full" />
-								</div>
+									<div
+										class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/10"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="1.5"
+											stroke="currentColor"
+											class="h-8 w-8 text-white opacity-0 transition-opacity group-hover:opacity-100"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
+											/>
+										</svg>
+									</div>
+								</button>
 							{/each}
 						</div>
 					{:else}
 						<div class="flex h-full items-center justify-center text-gray-400">No images found</div>
 					{/if}
 				{:else if activeTab === 'prompt'}
-					<div
-						class="prose max-w-none rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5 prose-indigo"
-					>
+					<div class="relative rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
 						{#if data.designResources.prompt}
-							{@html data.designResources.prompt}
+							<button
+								class="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 hover:text-indigo-600"
+								on:click={() => downloadFile(data.designResources.promptRaw, 'prompt.md')}
+								title="Download Markdown"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-4 w-4"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+									/>
+								</svg>
+								Download
+							</button>
+							<div class="prose max-w-none prose-indigo">
+								{@html data.designResources.prompt}
+							</div>
 						{:else}
 							<p class="text-gray-400">No prompt file found</p>
 						{/if}
 					</div>
 				{:else if activeTab === 'styleGuide'}
-					<div
-						class="prose max-w-none rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5 prose-indigo"
-					>
+					<div class="relative rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
 						{#if data.designResources.styleGuide}
-							{@html data.designResources.styleGuide}
+							<button
+								class="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 hover:text-indigo-600"
+								on:click={() => downloadFile(data.designResources.styleGuideRaw, 'style-guide.md')}
+								title="Download Markdown"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="1.5"
+									stroke="currentColor"
+									class="h-4 w-4"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+									/>
+								</svg>
+								Download
+							</button>
+							<div class="prose max-w-none prose-indigo">
+								{@html data.designResources.styleGuide}
+							</div>
 						{:else}
 							<p class="text-gray-400">No style guide file found</p>
 						{/if}
@@ -172,5 +246,38 @@
 				{/if}
 			</div>
 		</div>
+	</div>
+{/if}
+
+<!-- Large Image Modal -->
+{#if selectedImage}
+	<div
+		class="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+		on:click={() => (selectedImage = null)}
+		on:keydown={(e) => e.key === 'Escape' && (selectedImage = null)}
+		role="button"
+		tabindex="0"
+	>
+		<img
+			src={selectedImage}
+			alt="Full size"
+			class="max-h-[95vh] max-w-[95vw] object-contain transition-transform duration-300"
+		/>
+		<button
+			class="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+			on:click|stopPropagation={() => (selectedImage = null)}
+			aria-label="Close full view"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="h-6 w-6"
+			>
+				<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+			</svg>
+		</button>
 	</div>
 {/if}
