@@ -1,5 +1,36 @@
 import { marked } from 'marked';
 
+// Custom renderer to inject color swatches
+const renderer = new marked.Renderer();
+const originalCodespan = renderer.codespan.bind(renderer);
+
+// Helper to calculate contrast color (black or white)
+function getContrastColor(hex: string) {
+  // Remove # if present
+  const color = hex.replace('#', '');
+  const r = parseInt(color.substr(0, 2), 16);
+  const g = parseInt(color.substr(2, 2), 16);
+  const b = parseInt(color.substr(4, 2), 16);
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 128) ? 'black' : 'white';
+}
+
+renderer.codespan = (token) => {
+  const text = typeof token === 'string' ? token : token.text;
+  // Check if the text is a hex color code (e.g., #FF7254 or #FFF)
+  // Expand short hex to full hex for calculation
+  const hexColorRegex = /^#([0-9A-F]{3}){1,2}$/i;
+  if (hexColorRegex.test(text)) {
+    let fullHex = text;
+    if (text.length === 4) {
+      fullHex = '#' + text[1] + text[1] + text[2] + text[2] + text[3] + text[3];
+    }
+    const contrast = getContrastColor(fullHex);
+    return `<code style="background-color: ${text}; color: ${contrast}; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); font-weight: 500;">${text}</code>`;
+  }
+  return originalCodespan(token);
+};
+
 export const load = async ({ route }) => {
   const routeId = route.id;
   // route.id starts with /, e.g., "/generate-style-guide/real-estate"
@@ -93,9 +124,9 @@ export const load = async ({ route }) => {
     if (path.startsWith(searchPrefix)) {
       const fileName = path.split('/').pop()?.toLowerCase();
       if (fileName?.includes('prompt') && fileName.endsWith('.md')) {
-        promptContent = await marked.parse(content as string);
+        promptContent = await marked.parse(content as string, { renderer });
       } else if (fileName === 'style-guide.md') {
-        styleGuideContent = await marked.parse(content as string);
+        styleGuideContent = await marked.parse(content as string, { renderer });
       }
     }
   }
